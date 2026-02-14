@@ -102,7 +102,8 @@ body:hover .cursor-outline {
 /* --- Typography --- */
 h1 {
     font-weight: 700;
-    font-size: 3.5rem;
+    font-size: clamp(3rem, 8vw, 6rem);
+    /* Huge on desktop, readable on mobile */
     letter-spacing: -0.05em;
     line-height: 1.1;
     margin-bottom: 0.5rem;
@@ -110,7 +111,7 @@ h1 {
 
 h2 {
     font-weight: 600;
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 3.5rem);
     letter-spacing: -0.03em;
     margin-bottom: 2rem;
     color: #fff;
@@ -124,7 +125,8 @@ h3 {
 }
 
 p {
-    font-size: 1.1rem;
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
+    /* Slightly larger on desktop, readable mobile */
     line-height: 1.6;
     color: #ccc;
 }
@@ -136,7 +138,8 @@ p {
     border: none;
     padding: 1rem 2rem;
     border-radius: 50px;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    /* Punchier button text */
     font-weight: 600;
     margin-top: 1.5rem;
     cursor: pointer;
@@ -186,7 +189,7 @@ p {
 }
 
 .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     background: linear-gradient(135deg, #00f2ea, #ff0050);
     -webkit-background-clip: text;
     background-clip: text;
@@ -213,6 +216,16 @@ p {
     /* For Spotlight */
     --mouse-x: 50%;
     --mouse-y: 50%;
+}
+
+@media (max-width: 768px) {
+    .feature-card {
+        backdrop-filter: blur(12px);
+        /* Reduce blur load on mobile */
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        /* lighter shadow */
+    }
 }
 
 /* Spotlight Glow */
