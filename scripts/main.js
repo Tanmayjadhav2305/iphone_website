@@ -12,8 +12,8 @@ const lenis = new Lenis({
     gestureDirection: 'vertical',
     smooth: true,
     mouseMultiplier: 1,
-    smoothTouch: false,
-    touchMultiplier: 2,
+    smoothTouch: true, // Enable smooth scrolling on touch devices
+    touchMultiplier: 1.5, // Adjust sensitivity
 })
 
 function raf(time) {

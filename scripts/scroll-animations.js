@@ -24,55 +24,59 @@ export function initScrollAnimations(sceneControls, lenis) {
     });
 
     // --- 2. Scroll Interaction (The Core Logic) ---
-    // Create a timeline that spans the entire scroll height
-    const scrollTL = gsap.timeline({
-        scrollTrigger: {
-            trigger: '.scroll-container',
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1.5 // Smooth catch-up
-        }
+    // Responsive Animations using gsap.matchMedia()
+    let mm = gsap.matchMedia();
+
+    // --- DESKTOP (Width >= 800px) ---
+    mm.add("(min-width: 800px)", () => {
+        // Initial State
+        model.scale.set(1, 1, 1);
+
+        const scrollTL = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.scroll-container',
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1.5
+            }
+        });
+
+        // Hero -> Features: Rotate to side
+        scrollTL.to(model.rotation, { y: Math.PI * 0.5, x: 0.2, duration: 1 }, 'feature start')
+            .to(model.position, { x: 1.5, z: -2, duration: 1 }, 'feature start')
+            // Features -> Experience
+            .to(model.rotation, { y: Math.PI, x: 0, duration: 1 }, 'experience')
+            .to(model.position, { x: 0, z: 0, duration: 1 }, 'experience')
+            // Experience -> Gallery
+            .to(model.rotation, { y: Math.PI * 2, duration: 1 }, 'gallery')
+            .to(model.position, { y: 0, scale: 0.8, duration: 1 }, 'gallery');
     });
 
-    // Rotation Sequence
-    // Hero -> Features: Rotate to side
-    scrollTL.to(model.rotation, {
-        y: Math.PI * 0.5, // 90 deg
-        x: 0.2, // Slight tilt
-        duration: 1 // Relative duration
-    }, 'feature start')
+    // --- MOBILE (Width < 800px) ---
+    mm.add("(max-width: 799px)", () => {
+        // Initial State: Smaller for mobile
+        model.scale.set(0.7, 0.7, 0.7);
+        model.position.set(0, 0, 0);
 
-        // Move phone to side to make room for cards
-        .to(model.position, {
-            x: 1.5, // Move right
-            z: -2, // Move back slightly
-            duration: 1
-        }, 'feature start')
+        const scrollTL = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.scroll-container',
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1.5
+            }
+        });
 
-        // Features -> Experience: Rotate to back
-        .to(model.rotation, {
-            y: Math.PI, // 180 deg (Back)
-            x: 0,
-            duration: 1
-        }, 'experience')
-
-        .to(model.position, {
-            x: 0, // Center again
-            z: 0,
-            duration: 1
-        }, 'experience')
-
-        // Experience -> Gallery: Front again but spin
-        .to(model.rotation, {
-            y: Math.PI * 2,
-            duration: 1
-        }, 'gallery')
-
-        .to(model.position, {
-            y: 0,
-            scale: 0.8, // Zoom out slightly
-            duration: 1
-        }, 'gallery');
+        // Hero -> Features: Move phone slightly right and DEEP back to act as background
+        scrollTL.to(model.rotation, { y: Math.PI * 0.25, x: 0.1, duration: 1 }, 'feature start')
+            .to(model.position, { x: 1, y: 1, z: -5, duration: 1 }, 'feature start') // Move up and back
+            // Features -> Experience: Bring back center but small
+            .to(model.rotation, { y: Math.PI, x: 0, duration: 1 }, 'experience')
+            .to(model.position, { x: 0, y: 0.5, z: 0, duration: 1 }, 'experience')
+            // Experience -> Gallery
+            .to(model.rotation, { y: Math.PI * 2, duration: 1 }, 'gallery')
+            .to(model.position, { y: -1, scale: 0.6, duration: 1 }, 'gallery');
+    });
 
 
     // --- 3. UI Element Animations ---
