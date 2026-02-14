@@ -1,0 +1,425 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
+:root {
+    --color-bg: #050505;
+    --color-bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+    --color-text: #ffffff;
+    --color-accent-1: #00f2ea;
+    --color-accent-2: #ff0050;
+    --color-accent-2: #ff0050;
+    --font-main: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-display: 'Permanent Marker', cursive;
+    /* Crazy font for 3D text */
+
+    --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background: var(--color-bg-gradient);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    overflow: hidden;
+    /* Lenis will handle scroll */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    cursor: none;
+    /* Hide default cursor */
+}
+
+/* --- Custom Cursor --- */
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+}
+
+.cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9998;
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+body:hover .cursor-outline {
+    /* Ensure it shows up */
+    opacity: 1;
+}
+
+
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    /* Let clicks pass through to UI if needed, or handle in JS */
+}
+
+.scroll-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+}
+
+/* --- Typography --- */
+h1 {
+    font-weight: 700;
+    font-size: 3.5rem;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 2.5rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+    color: #fff;
+}
+
+h3 {
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+/* --- Components --- */
+.cta-button {
+    background: var(--color-text);
+    color: var(--color-bg);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.cta-button:active {
+    transform: scale(0.95);
+}
+
+/* --- Sections --- */
+.section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* Hero */
+.hero {
+    align-items: center;
+    text-align: center;
+    height: 100vh;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    pointer-events: none;
+    /* Let clicks pass through to phone if needed */
+}
+
+.hero-content>* {
+    pointer-events: auto;
+}
+
+.hero-title {
+    background: linear-gradient(135deg, #fff 20%, #666 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #00f2ea, #ff0050);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+}
+
+/* Features */
+/* Features */
+.feature-card {
+    background: rgba(20, 20, 20, 0.6);
+    /* Darker base */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2.5rem;
+    border-radius: 24px;
+    margin-bottom: 2rem;
+    transform-style: preserve-3d;
+    transition: transform 0.1s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    /* For Spotlight */
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+}
+
+/* Spotlight Glow */
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 24px;
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+/* Border Glow */
+.feature-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 24px;
+    background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.3),
+            transparent 40%);
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    padding: 1px;
+    /* Border width */
+}
+
+.feature-card:hover::before,
+.feature-card:hover::after {
+    opacity: 1;
+}
+
+.card-content,
+.card-icon {
+    position: relative;
+    z-index: 2;
+}
+
+.card-icon svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-accent-1);
+    filter: drop-shadow(0 0 10px rgba(0, 242, 234, 0.5));
+    margin-bottom: 1.5rem;
+}
+
+.feature-card h3 {
+    font-size: 1.8rem;
+    background: linear-gradient(to right, #fff, #aaa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* --- Custom Scrollbar (Premium) --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #444, #666);
+    border-radius: 10px;
+    border: 1px solid #000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+}
+
+
+/* Specs Grid */
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.spec-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    text-align: left;
+    transition: background 0.3s;
+}
+
+.spec-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.spec-val {
+    display: block;
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(to bottom, #fff, #666);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.spec-label {
+    font-size: 1rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+
+/* --- Color Dock (Glassmorphism Fixed Bottom) --- */
+.color-dock {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    z-index: 100;
+    padding: 10px;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dock-blur {
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 30, 30, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+.dock-items {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 1.5rem;
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Bouncy */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.color-swatch::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.2);
+}
+
+.color-swatch:hover::after {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.color-swatch:active {
+    transform: scale(0.9);
+}
+
+/* Swatch Colors */
+.deep-purple {
+    background: #4a3b52;
+    border: 1px solid #6e5c75;
+}
+
+.gold {
+    background: #f5e1c8;
+    border: 1px solid #fae7cf;
+}
+
+.silver {
+    background: #f0f0f0;
+    border: 1px solid #fff;
+}
+
+.space-black {
+    background: #222;
+    border: 1px solid #444;
+}
