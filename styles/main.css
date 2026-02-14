@@ -25,12 +25,18 @@ body {
     background: var(--color-bg-gradient);
     background-color: var(--color-bg);
     color: var(--color-text);
-    overflow: hidden;
-    /* Lenis will handle scroll */
+    color: var(--color-text);
+    overflow-x: hidden;
+    /* Allow native scroll for mobile */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    cursor: none;
-    /* Hide default cursor */
+}
+
+@media (pointer: fine) {
+    body {
+        cursor: none;
+        /* Hide default cursor only on desktop */
+    }
 }
 
 /* --- Custom Cursor --- */
@@ -46,6 +52,14 @@ body {
     pointer-events: none;
     z-index: 9999;
     mix-blend-mode: difference;
+}
+
+@media (pointer: coarse) {
+
+    .cursor-dot,
+    .cursor-outline {
+        display: none;
+    }
 }
 
 .cursor-outline {
